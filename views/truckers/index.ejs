@@ -1,0 +1,9 @@
+<% layout('layouts/boilerplate') %> 
+    <h1>Truckers</h1>
+    <% for(let trucker of truckers){%> 
+        <h1><%= trucker.name %> </h1>
+        <h2><%= trucker.email %> </h2>
+        <h3><%= trucker.username %> </h3>
+        <a class="btn btn-primary" href="/truckers/<%=trucker._id%>">View <%= trucker.name %> </a>
+        <% } %> 
+

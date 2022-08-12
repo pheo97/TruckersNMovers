@@ -1,0 +1,11 @@
+<% layout('layouts/boilerplate') %> 
+<h1>edit</h1>
+<form action="/truckers/<%=trucker._id%>?_method=PUT" method="POST">
+    <Label for="name">Name</Label>
+    <input type="text" name="trucker[name]" id="name" value="<%= trucker.name %> ">
+    <label for="email">Email</label>
+    <input type="email" name="trucker[email]" id="email" value="<%= trucker.email %> ">
+    <label for="username">Username</label>
+    <input type="text" name="trucker[username]" id="username" value="<%= trucker.username %> ">
+    <button>Update Info</button>
+</form>
