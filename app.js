@@ -5,13 +5,14 @@ const trucker = require('./controllers/trucker')
 const path = require('path');
 const methodOverride = require('method-override');
 const ExpressError = require('./utilities/expressError');
+const flash = require('connect-flash');
 
 const passport = require('passport');
 const localStrategy = require('passport-local');
 const session = require('express-session');
 
-const User = require('./models/user');
-const user = require('./controllers/users');
+const modelUser = require('./models/user');
+const controllerUser = require('./controllers/users');
 
 
 
@@ -25,6 +26,7 @@ app.use(express.static(path.join(__dirname,'views')));
 
 app.use(express.urlencoded( { extended:true} ));
 app.use(methodOverride('_method'));
+app.use(flash());
 
 mongoose.connect('mongodb://localhost:27017/truckers-n-movers',{
     useNewUrlParser: true,
@@ -55,10 +57,19 @@ app.use(session(sessionConfig));
 app.use(passport.initialize());
 app.use(passport.session());
 
-passport.use(new localStrategy(User.authenticate()))
+passport.use(new localStrategy(modelUser.authenticate()))
 
-passport.serializeUser(User.serializeUser());
-passport.deserializeUser(User.deserializeUser());
+passport.serializeUser(modelUser.serializeUser());
+passport.deserializeUser(modelUser.deserializeUser());
+
+
+app.use((req, res, next) => {
+    console.log(req.body)
+    res.locals.currentUser = req.user;
+    res.locals.success = req.flash('success');
+    res.locals.error = req.flash('error');
+    next();
+})
 
 
 
@@ -69,7 +80,7 @@ app.get('/', (req,res) =>{
 router.use((req, res, next) => {
     console.log('Time:', Date.now())
     next()
-  })
+  });
 
 
 
@@ -81,13 +92,15 @@ app.get('/truckers/:id/edit', trucker.renderEditTrucker);
 
 app.put('/truckers/:id', trucker.updateTrucker);
 
-app.get('/login', user.renderLogin);
+app.get('/login', controllerUser.renderLogin);
 
-app.get('/register', user.renderRegister);
+app.post('/register', controllerUser.register);
 
+app.get('/register', controllerUser.renderRegister);
 
+app.post('/login', passport.authenticate('local',{ failureFlash:true , failureRedirect:'/login'}), controllerUser.login);
 
-
+app.get('/logout', controllerUser.logout);
 
 
 app.listen(3000, (req,res) =>{
